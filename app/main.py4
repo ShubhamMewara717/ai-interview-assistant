@@ -1,0 +1,78 @@
+from fastapi import FastAPI
+from sqlalchemy.orm import Session
+from app.auth import hash_password, verify_password
+from app.database import engine, SessionLocal
+from app.models import Base, User
+from app.schemas import UserCreate,  UserLogin
+from fastapi import UploadFile, File
+from fastapi import FastAPI, UploadFile, File
+
+Base.metadata.create_all(bind=engine)
+
+app = FastAPI()
+
+
+@app.get("/")
+def home():
+    return {"message": "AI Interview Preparation Assistant Running"}
+
+
+@app.post("/register")
+def register(user: UserCreate):
+
+    db: Session = SessionLocal()
+
+    new_user = User(
+        username=user.username,
+        email=user.email,
+        password=hash_password(user.password)
+    )
+
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+
+    db.close()
+
+    return {
+        "message": "User registered successfully",
+        "username": new_user.username
+    }
+@app.post("/login")
+def login(user: UserLogin):
+
+    db: Session = SessionLocal()
+
+    db_user = db.query(User).filter(
+        User.email == user.email
+    ).first()
+
+    if not db_user:
+        db.close()
+        return {"error": "User not found"}
+
+    if not verify_password(
+        user.password,
+        db_user.password
+    ):
+        db.close()
+        return {"error": "Invalid password"}
+
+    db.close()
+
+    return {
+        "message": "Login successful",
+        "username": db_user.username
+    }
+@app.post("/upload-resume")
+async def upload_resume(file: UploadFile = File(...)):
+
+    file_location = f"uploads/{file.filename}"
+
+    with open(file_location, "wb") as f:
+        f.write(await file.read())
+
+    return {
+        "message": "Resume uploaded successfully",
+        "filename": file.filename
+    }
