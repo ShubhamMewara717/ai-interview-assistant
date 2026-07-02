@@ -4,6 +4,7 @@ import os
 from app.services.pdf_reader import read_pdf
 from app.services.skill_extractor import extract_skills
 from app.services.question_generator import generate_questions
+from app.services.answer_evaluator import evaluate_answer
 
 router = APIRouter()
 
@@ -31,21 +32,5 @@ def interview_questions():
     }
 
 @router.post("/evaluate-answer")
-def evaluate_answer(answer: str):
-
-    if len(answer) < 30:
-        score = 3
-        feedback = "Answer is too short."
-
-    elif len(answer) < 100:
-        score = 6
-        feedback = "Good answer but add more details."
-
-    else:
-        score = 9
-        feedback = "Excellent answer."
-
-    return {
-        "score": score,
-        "feedback": feedback
-    }
+def evaluate(question: str, answer: str):
+    return evaluate_answer(question, answer)
