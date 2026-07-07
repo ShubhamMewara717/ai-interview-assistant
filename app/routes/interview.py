@@ -1,5 +1,4 @@
 from fastapi import APIRouter
-from app.services.question_generator import generate_questions
 import os
 from app.services.pdf_reader import read_pdf
 from app.services.skill_extractor import extract_skills

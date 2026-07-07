@@ -34,9 +34,16 @@ def register(user: UserCreate):
 def login(user: UserLogin):
     db: Session = SessionLocal()
 
+    print("EMAIL RECEIVED:", repr(user.email))
+
+    all_users = db.query(User).all()
+    print("ALL USERS:", [(u.username, u.email) for u in all_users])
+
     db_user = db.query(User).filter(
         User.email == user.email
     ).first()
+
+    print("FOUND USER:", db_user)
 
     if not db_user:
         db.close()

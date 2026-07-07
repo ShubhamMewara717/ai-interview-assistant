@@ -1,57 +1,55 @@
 def generate_questions(skills):
-
-    questions = []
-
     question_bank = {
         "python": [
-            "What is Python?",
-            "Explain OOP in Python.",
-            "Difference between List and Tuple."
+            "Explain Python decorators.",
+            "What are generators in Python?",
+            "Difference between list and tuple."
         ],
 
         "sql": [
-            "What are SQL Joins?",
-            "Difference between DELETE, DROP and TRUNCATE?",
-            "What is Primary Key?"
-        ],
-
-        "fastapi": [
-            "Why is FastAPI faster than Flask?",
-            "Explain REST API.",
-            "What is APIRouter?"
+            "Difference between INNER JOIN and LEFT JOIN.",
+            "What is normalization?",
+            "Explain GROUP BY."
         ],
 
         "machine learning": [
-            "What is Machine Learning?",
-            "Difference between Supervised and Unsupervised Learning?",
-            "Explain Overfitting."
+            "What is supervised learning?",
+            "Difference between classification and regression.",
+            "Explain overfitting."
         ],
 
-        "data science": [
-            "Explain Data Science.",
-            "Difference between Data Science and Data Analytics."
+        "deep learning": [
+            "What is CNN?",
+            "Difference between CNN and RNN.",
+            "Explain backpropagation."
+        ],
+
+        "fastapi": [
+            "Explain dependency injection in FastAPI.",
+            "Difference between GET and POST.",
+            "What is APIRouter?"
         ],
 
         "pandas": [
-            "What is DataFrame?",
-            "Difference between loc and iloc."
+            "Difference between loc and iloc.",
+            "How do you handle missing values?",
+            "What is a DataFrame?"
         ],
 
         "numpy": [
-            "Why NumPy is faster than Python List?",
-            "Explain ndarray."
+            "Difference between array and list.",
+            "Explain vectorization.",
+            "What is broadcasting?"
         ]
     }
 
+    questions = []
+
     for skill in skills:
-
-        skill = skill.lower()
-
         if skill in question_bank:
             questions.extend(question_bank[skill])
 
-    if len(questions) == 0:
-
+    if not questions:
         questions = [
             "Tell me about yourself.",
             "Why should we hire you?",
