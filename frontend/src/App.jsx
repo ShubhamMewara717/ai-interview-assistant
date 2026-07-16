@@ -6,6 +6,7 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import UploadResume from "./pages/UploadResume";
 import ResumeAnalysis from "./pages/ResumeAnalysis";
+import Interview from "./pages/Interview";
 
 function App() {
   return (
@@ -24,7 +25,8 @@ function App() {
         <Route path="/upload-resume" element={<UploadResume />} />
 
         <Route path="/resume-analysis" element={<ResumeAnalysis />}/>
-
+       
+        <Route path="/interview" element={<Interview />} />
       </Routes>
 
     </BrowserRouter>

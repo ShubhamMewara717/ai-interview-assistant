@@ -53,7 +53,10 @@ function Dashboard() {
           </p>
         </div>
 
-        <div className="bg-slate-800 rounded-xl p-6 hover:bg-slate-700 cursor-pointer shadow-lg">
+        <div
+          onClick={() => navigate("/interview")}
+         className="bg-slate-800 rounded-xl p-6 hover:bg-slate-700 cursor-pointer shadow-lg"
+        >
           <h3 className="text-2xl font-bold">🎤 Start Interview</h3>
           <p className="mt-3 text-gray-400">
             Begin AI mock interview.
