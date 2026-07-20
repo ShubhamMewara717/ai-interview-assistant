@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function Interview() {
-
+    
+  const navigate = useNavigate();
   const [questions, setQuestions] = useState([]);
   const [currentQuestion, setCurrentQuestion] = useState(0);
 
@@ -90,7 +92,7 @@ function Interview() {
 
     } else {
 
-      alert("🎉 Interview Completed!");
+      navigate("/result");
 
     }
 

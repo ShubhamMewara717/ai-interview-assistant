@@ -8,6 +8,7 @@ import UploadResume from "./pages/UploadResume";
 import ResumeAnalysis from "./pages/ResumeAnalysis";
 import QuestionPage from "./pages/QuestionPage";
 import Interview from "./pages/Interview";
+import Result from "./pages/Result";
 
 
 function App() {
@@ -31,6 +32,8 @@ function App() {
         <Route path="/questions" element={<QuestionPage />}/>
         
         <Route path="/interview" element={<Interview />} />
+         
+        <Route path="/result" element={<Result />} />
       </Routes>
 
     </BrowserRouter>
