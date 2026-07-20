@@ -1,11 +1,40 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 function Interview() {
 
+  const [questions, setQuestions] = useState([]);
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+
   const [answer, setAnswer] = useState("");
+
   const [score, setScore] = useState("");
   const [feedback, setFeedback] = useState("");
+
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    loadQuestions();
+  }, []);
+
+  const loadQuestions = async () => {
+
+    try {
+
+      const response = await fetch(
+        "http://127.0.0.1:8000/generate-questions"
+      );
+
+      const data = await response.json();
+
+      setQuestions(data.questions);
+
+    } catch {
+
+      alert("Cannot load questions.");
+
+    }
+
+  };
 
   const submitAnswer = async () => {
 
@@ -26,7 +55,7 @@ function Interview() {
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            question: "Explain Python Decorators.",
+            question: questions[currentQuestion],
             answer: answer
           })
         }
@@ -37,14 +66,33 @@ function Interview() {
       setScore(data.score);
       setFeedback(data.feedback);
 
-    } catch (error) {
+    } catch {
 
-      console.error(error);
-      alert("Cannot connect to backend.");
+      alert("Backend not running.");
 
     }
 
     setLoading(false);
+
+  };
+
+  const nextQuestion = () => {
+
+    if (currentQuestion + 1 < questions.length) {
+
+      setCurrentQuestion(currentQuestion + 1);
+
+      setAnswer("");
+
+      setScore("");
+
+      setFeedback("");
+
+    } else {
+
+      alert("🎉 Interview Completed!");
+
+    }
 
   };
 
@@ -58,43 +106,64 @@ function Interview() {
           AI Mock Interview
         </h1>
 
-        <h2 className="text-xl font-semibold mb-4">
-          Q1. Explain Python Decorators.
-        </h2>
+        {questions.length > 0 ? (
 
-        <textarea
-          rows="8"
-          value={answer}
-          onChange={(e) => setAnswer(e.target.value)}
-          placeholder="Write your answer here..."
-          className="w-full p-4 rounded-lg bg-slate-700 outline-none"
-        />
+          <>
 
-        <button
-          onClick={submitAnswer}
-          disabled={loading}
-          className="mt-5 w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-lg font-bold"
-        >
-          {loading ? "Evaluating..." : "Submit Answer"}
-        </button>
-
-        {score !== "" && (
-
-          <div className="mt-8 bg-slate-700 p-5 rounded-lg">
-
-            <h2 className="text-2xl font-bold text-green-400">
-              Score: {score}
+            <h2 className="text-xl font-semibold mb-4">
+              Q{currentQuestion + 1}. {questions[currentQuestion]}
             </h2>
 
-            <h3 className="mt-4 text-xl font-semibold">
-              Feedback
-            </h3>
+            <textarea
+              rows="8"
+              value={answer}
+              onChange={(e) => setAnswer(e.target.value)}
+              placeholder="Write your answer..."
+              className="w-full p-4 rounded-lg bg-slate-700 outline-none"
+            />
 
-            <p className="mt-2">
-              {feedback}
-            </p>
+            <button
+              onClick={submitAnswer}
+              disabled={loading}
+              className="mt-5 w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-lg font-bold"
+            >
+              {loading ? "Evaluating..." : "Submit Answer"}
+            </button>
 
-          </div>
+            {score !== "" && (
+
+              <div className="mt-8 bg-slate-700 p-5 rounded-lg">
+
+                <h2 className="text-2xl font-bold text-green-400">
+                  Score : {score}
+                </h2>
+
+                <h3 className="mt-4 text-xl font-semibold">
+                  Feedback
+                </h3>
+
+                <p className="mt-2">
+                  {feedback}
+                </p>
+
+                <button
+                  onClick={nextQuestion}
+                  className="mt-6 w-full bg-green-600 hover:bg-green-700 py-3 rounded-lg font-bold"
+                >
+                  Next Question
+                </button>
+
+              </div>
+
+            )}
+
+          </>
+
+        ) : (
+
+          <h2 className="text-center text-xl">
+            Loading Questions...
+          </h2>
 
         )}
 
