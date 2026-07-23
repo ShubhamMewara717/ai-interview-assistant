@@ -2,13 +2,13 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 function Interview() {
-    
+
   const navigate = useNavigate();
+
   const [questions, setQuestions] = useState([]);
   const [currentQuestion, setCurrentQuestion] = useState(0);
 
   const [answer, setAnswer] = useState("");
-
   const [score, setScore] = useState("");
   const [feedback, setFeedback] = useState("");
 
@@ -85,14 +85,18 @@ function Interview() {
       setCurrentQuestion(currentQuestion + 1);
 
       setAnswer("");
-
       setScore("");
-
       setFeedback("");
 
     } else {
 
-      navigate("/result");
+      navigate("/result", {
+        state: {
+          score: score,
+          feedback: feedback,
+          totalQuestions: questions.length
+        }
+      });
 
     }
 
@@ -152,7 +156,9 @@ function Interview() {
                   onClick={nextQuestion}
                   className="mt-6 w-full bg-green-600 hover:bg-green-700 py-3 rounded-lg font-bold"
                 >
-                  Next Question
+                  {currentQuestion + 1 === questions.length
+                    ? "Finish Interview"
+                    : "Next Question"}
                 </button>
 
               </div>
