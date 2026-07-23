@@ -13,6 +13,7 @@ function Interview() {
   const [feedback, setFeedback] = useState("");
 
   const [loading, setLoading] = useState(false);
+  const [totalScore, setTotalScore] = useState(0);
 
   useEffect(() => {
     loadQuestions();
@@ -65,9 +66,12 @@ function Interview() {
 
       const data = await response.json();
 
-      setScore(data.score);
-      setFeedback(data.feedback);
+      const currentScore = Number(data.score);
 
+        setScore(currentScore);
+          setFeedback(data.feedback);
+
+          setTotalScore((prev) => prev + currentScore);
     } catch {
 
       alert("Backend not running.");
@@ -90,14 +94,10 @@ function Interview() {
 
     } else {
 
-      navigate("/result", {
-        state: {
-          score: score,
-          feedback: feedback,
-          totalQuestions: questions.length
-        }
-      });
+      localStorage.setItem("totalScore", totalScore);
+      localStorage.setItem("totalQuestions", questions.length);
 
+      navigate("/result");
     }
 
   };
