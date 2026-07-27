@@ -9,10 +9,13 @@ import ResumeAnalysis from "./pages/ResumeAnalysis";
 import QuestionPage from "./pages/QuestionPage";
 import Interview from "./pages/Interview";
 import Result from "./pages/Result";
-
+import History from "./pages/History";
+import Performance from "./pages/Performance";
 
 function App() {
+
   return (
+
     <BrowserRouter>
 
       <Routes>
@@ -27,17 +30,24 @@ function App() {
 
         <Route path="/upload-resume" element={<UploadResume />} />
 
-        <Route path="/resume-analysis" element={<ResumeAnalysis />}/>
+        <Route path="/resume-analysis" element={<ResumeAnalysis />} />
 
-        <Route path="/questions" element={<QuestionPage />}/>
-        
+        <Route path="/questions" element={<QuestionPage />} />
+
         <Route path="/interview" element={<Interview />} />
-         
+
         <Route path="/result" element={<Result />} />
+
+        <Route path="/history" element={<History />} />
+
+        <Route path="/performance" element={<Performance />} />
+
       </Routes>
 
     </BrowserRouter>
+
   );
+
 }
 
 export default App;

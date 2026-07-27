@@ -1,11 +1,12 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 function Result() {
 
   const navigate = useNavigate();
 
-  const totalScore = localStorage.getItem("totalScore") || 0;
-  const totalQuestions = localStorage.getItem("totalQuestions") || 1;
+  const totalScore = Number(localStorage.getItem("totalScore")) || 0;
+  const totalQuestions = Number(localStorage.getItem("totalQuestions")) || 1;
 
   const percentage = Math.round((totalScore / (totalQuestions * 10)) * 100);
 
@@ -21,7 +22,50 @@ function Result() {
     performance = "Needs Improvement";
   }
 
+  useEffect(() => {
+
+    const saveResult = async () => {
+
+      try {
+
+        await fetch("http://127.0.0.1:8000/save-result", {
+
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json"
+          },
+
+          body: JSON.stringify({
+
+            username: "Shubham",
+
+            total_score: totalScore,
+
+            total_questions: totalQuestions,
+
+            percentage: percentage,
+
+            performance: performance
+
+          })
+
+        });
+
+      } catch (error) {
+
+        console.log("Result save failed", error);
+
+      }
+
+    };
+
+    saveResult();
+
+  }, []);
+
   return (
+
     <div className="min-h-screen bg-slate-900 text-white flex justify-center items-center">
 
       <div className="bg-slate-800 p-8 rounded-xl w-[700px]">
@@ -68,6 +112,7 @@ function Result() {
       </div>
 
     </div>
+
   );
 }
 

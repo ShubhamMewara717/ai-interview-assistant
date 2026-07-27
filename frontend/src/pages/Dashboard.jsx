@@ -1,7 +1,11 @@
 import { useNavigate } from "react-router-dom";
+
 function Dashboard() {
+
   const navigate = useNavigate();
+
   return (
+
     <div className="min-h-screen bg-slate-900 text-white">
 
       {/* Navbar */}
@@ -32,17 +36,19 @@ function Dashboard() {
 
       {/* Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 p-10">
-        
-        <div 
+
+        {/* Upload Resume */}
+        <div
           onClick={() => navigate("/upload-resume")}
           className="bg-slate-800 rounded-xl p-6 hover:bg-slate-700 cursor-pointer shadow-lg"
-          >
+        >
           <h3 className="text-2xl font-bold">📄 Upload Resume</h3>
           <p className="mt-3 text-gray-400">
             Upload your latest resume.
           </p>
         </div>
 
+        {/* Resume Analysis */}
         <div
           onClick={() => navigate("/resume-analysis")}
           className="bg-slate-800 rounded-xl p-6 hover:bg-slate-700 cursor-pointer shadow-lg"
@@ -53,9 +59,10 @@ function Dashboard() {
           </p>
         </div>
 
+        {/* Interview */}
         <div
           onClick={() => navigate("/interview")}
-         className="bg-slate-800 rounded-xl p-6 hover:bg-slate-700 cursor-pointer shadow-lg"
+          className="bg-slate-800 rounded-xl p-6 hover:bg-slate-700 cursor-pointer shadow-lg"
         >
           <h3 className="text-2xl font-bold">🎤 Start Interview</h3>
           <p className="mt-3 text-gray-400">
@@ -63,20 +70,29 @@ function Dashboard() {
           </p>
         </div>
 
-        <div className="bg-slate-800 rounded-xl p-6 hover:bg-slate-700 cursor-pointer shadow-lg">
-          <h3 className="text-2xl font-bold">📊 History</h3>
+        {/* History */}
+        <div
+          onClick={() => navigate("/history")}
+          className="bg-slate-800 rounded-xl p-6 hover:bg-slate-700 cursor-pointer shadow-lg"
+        >
+          <h3 className="text-2xl font-bold">📚 History</h3>
           <p className="mt-3 text-gray-400">
             View previous interviews.
           </p>
         </div>
 
-        <div className="bg-slate-800 rounded-xl p-6 hover:bg-slate-700 cursor-pointer shadow-lg">
+        {/* Performance */}
+        <div
+          onClick={() => navigate("/performance")}
+          className="bg-slate-800 rounded-xl p-6 hover:bg-slate-700 cursor-pointer shadow-lg"
+        >
           <h3 className="text-2xl font-bold">🏆 Performance</h3>
           <p className="mt-3 text-gray-400">
             Check your AI score.
           </p>
         </div>
 
+        {/* Profile */}
         <div className="bg-slate-800 rounded-xl p-6 hover:bg-slate-700 cursor-pointer shadow-lg">
           <h3 className="text-2xl font-bold">👤 Profile</h3>
           <p className="mt-3 text-gray-400">
@@ -87,7 +103,9 @@ function Dashboard() {
       </div>
 
     </div>
+
   );
+
 }
 
 export default Dashboard;
