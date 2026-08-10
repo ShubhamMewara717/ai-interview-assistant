@@ -59,6 +59,7 @@ def login(user: UserLogin):
     db.close()
 
     return {
-        "message": "Login successful",
-        "username": db_user.username
+    "message": "Login successful",
+    "username": db_user.username,
+    "email": db_user.email
     }

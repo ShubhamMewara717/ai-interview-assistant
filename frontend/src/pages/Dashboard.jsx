@@ -4,6 +4,17 @@ function Dashboard() {
 
   const navigate = useNavigate();
 
+  const username = localStorage.getItem("username") || "User";
+
+  const handleLogout = () => {
+
+    localStorage.removeItem("username");
+    localStorage.removeItem("email");
+
+    navigate("/login");
+
+  };
+
   return (
 
     <div className="min-h-screen bg-slate-900 text-white">
@@ -15,7 +26,10 @@ function Dashboard() {
           AI Interview Assistant
         </h1>
 
-        <button className="bg-red-600 hover:bg-red-700 px-5 py-2 rounded-lg">
+        <button
+          onClick={handleLogout}
+          className="bg-red-600 hover:bg-red-700 px-5 py-2 rounded-lg"
+        >
           Logout
         </button>
 
@@ -25,7 +39,7 @@ function Dashboard() {
       <div className="text-center mt-10">
 
         <h2 className="text-4xl font-bold">
-          Welcome Shubham 👋
+          Welcome {username} 👋
         </h2>
 
         <p className="text-gray-400 mt-2">
@@ -93,7 +107,10 @@ function Dashboard() {
         </div>
 
         {/* Profile */}
-        <div className="bg-slate-800 rounded-xl p-6 hover:bg-slate-700 cursor-pointer shadow-lg">
+        <div
+          onClick={() => navigate("/profile")}
+          className="bg-slate-800 rounded-xl p-6 hover:bg-slate-700 cursor-pointer shadow-lg"
+        >
           <h3 className="text-2xl font-bold">👤 Profile</h3>
           <p className="mt-3 text-gray-400">
             Manage your account.

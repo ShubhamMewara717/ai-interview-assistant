@@ -25,10 +25,19 @@ function Login() {
       const data = await response.json();
 
     if (data.error) {
-    alert(data.error);
+
+  alert(data.error);
+
 } else {
-    alert(data.message);
-    navigate("/dashboard");
+
+  // Save logged-in user
+  localStorage.setItem("username", data.username);
+  localStorage.setItem("email", data.email);
+
+  alert(data.message);
+
+  navigate("/dashboard");
+
 }
     } catch (error) {
       alert("Cannot connect to backend.");
