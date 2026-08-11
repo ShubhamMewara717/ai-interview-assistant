@@ -11,6 +11,7 @@ import Interview from "./pages/Interview";
 import Result from "./pages/Result";
 import History from "./pages/History";
 import Performance from "./pages/Performance";
+import Profile from "./pages/Profile";
 
 function App() {
 
@@ -41,6 +42,8 @@ function App() {
         <Route path="/history" element={<History />} />
 
         <Route path="/performance" element={<Performance />} />
+
+        <Route path="/profile" element={<Profile />} />
 
       </Routes>
 
