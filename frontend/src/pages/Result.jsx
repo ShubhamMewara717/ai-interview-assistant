@@ -38,7 +38,7 @@ function Result() {
 
           body: JSON.stringify({
 
-            username: "Shubham",
+            username: localStorage.getItem("username"),
 
             total_score: totalScore,
 

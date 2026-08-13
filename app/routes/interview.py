@@ -103,6 +103,9 @@ def history(username: str, db: Session = Depends(get_db)):
         InterviewHistory.username == username
     ).all()
 
+    return history
+
+
 # ---------------- Performance Dashboard ---------------- #
 
 @router.get("/performance/{username}")
@@ -143,29 +146,16 @@ def performance(username: str, db: Session = Depends(get_db)):
     scores = []
 
     for interview in interviews:
-
         scores.append({
-
             "id": interview.id,
-
             "score": interview.total_score,
-
             "percentage": interview.percentage
-
         })
 
     return {
-
         "total_interviews": total_interviews,
-
         "best_score": best_score,
-
         "average_score": average_score,
-
         "average_percentage": average_percentage,
-
         "scores": scores
-
     }
-
-    return history
