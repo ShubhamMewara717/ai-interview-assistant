@@ -193,36 +193,41 @@ def generate_questions(skills):
 
     selected_questions = []
 
+    # Valid skills only
+    valid_skills = []
+
     for skill in skills:
 
         skill = skill.lower()
 
         if skill in QUESTION_BANK:
 
-            available = QUESTION_BANK[skill]
+            valid_skills.append(skill)
 
-            number = min(3, len(available))
+    # Shuffle skills
+    random.shuffle(valid_skills)
 
-            selected_questions.extend(
-                random.sample(available, number)
-            )
+    # Maximum 5 skills
+    valid_skills = valid_skills[:5]
 
-    # Remove duplicates
-    selected_questions = list(dict.fromkeys(selected_questions))
+    # One random question from each skill
+    for skill in valid_skills:
 
-    # Shuffle questions
+        question = random.choice(QUESTION_BANK[skill])
+
+        selected_questions.append(question)
+
+    # Fill remaining questions (if less than 5 skills found)
+    while len(selected_questions) < 5:
+
+        random_skill = random.choice(list(QUESTION_BANK.keys()))
+
+        question = random.choice(QUESTION_BANK[random_skill])
+
+        if question not in selected_questions:
+
+            selected_questions.append(question)
+
     random.shuffle(selected_questions)
-
-    if not selected_questions:
-
-        selected_questions = [
-
-            "Tell me about yourself.",
-
-            "Why should we hire you?",
-
-            "What are your strengths?"
-
-        ]
 
     return selected_questions
