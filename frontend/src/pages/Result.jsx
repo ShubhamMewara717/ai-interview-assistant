@@ -1,14 +1,18 @@
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 function Result() {
 
   const navigate = useNavigate();
 
+  const hasSaved = useRef(false);
+
   const totalScore = Number(localStorage.getItem("totalScore")) || 0;
   const totalQuestions = Number(localStorage.getItem("totalQuestions")) || 1;
 
-  const percentage = Math.round((totalScore / (totalQuestions * 10)) * 100);
+  const percentage = Math.round(
+    (totalScore / (totalQuestions * 10)) * 100
+  );
 
   let performance = "";
 
@@ -23,6 +27,9 @@ function Result() {
   }
 
   useEffect(() => {
+
+    if (hasSaved.current) return;
+    hasSaved.current = true;
 
     const saveResult = async () => {
 
@@ -114,6 +121,7 @@ function Result() {
     </div>
 
   );
+
 }
 
 export default Result;
