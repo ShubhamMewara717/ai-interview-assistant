@@ -185,39 +185,29 @@ QUESTION_BANK = {
         "Explain fork.",
         "What is GitHub Actions?"
     ]
-
 }
 
 
 def generate_questions(skills):
 
     selected_questions = []
-
-    # Valid skills only
     valid_skills = []
 
     for skill in skills:
-
         skill = skill.lower()
 
         if skill in QUESTION_BANK:
-
             valid_skills.append(skill)
 
-    # Shuffle skills
     random.shuffle(valid_skills)
 
-    # Maximum 5 skills
     valid_skills = valid_skills[:5]
 
-    # One random question from each skill
     for skill in valid_skills:
+        selected_questions.append(
+            random.choice(QUESTION_BANK[skill])
+        )
 
-        question = random.choice(QUESTION_BANK[skill])
-
-        selected_questions.append(question)
-
-    # Fill remaining questions (if less than 5 skills found)
     while len(selected_questions) < 5:
 
         random_skill = random.choice(list(QUESTION_BANK.keys()))
@@ -225,7 +215,6 @@ def generate_questions(skills):
         question = random.choice(QUESTION_BANK[random_skill])
 
         if question not in selected_questions:
-
             selected_questions.append(question)
 
     random.shuffle(selected_questions)
