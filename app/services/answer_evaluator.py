@@ -1,67 +1,149 @@
+import os
+from google import genai
+
+# ---------------- Gemini Client ---------------- #
+
+API_KEY = os.getenv("GEMINI_API_KEY")
+
+client = None
+
+if API_KEY:
+    client = genai.Client(api_key=API_KEY)
+
+
+# ---------------- Main Evaluation ---------------- #
+
 def evaluate_answer(question: str, answer: str):
 
+    if client:
+
+        try:
+
+            prompt = f"""
+You are an expert technical interviewer.
+
+Evaluate the following interview answer.
+
+Question:
+{question}
+
+Candidate Answer:
+{answer}
+
+Return ONLY in this format.
+
+Score: X/10
+
+Strengths:
+- ...
+
+Weaknesses:
+- ...
+
+Suggestions:
+- ...
+
+Correct Answer:
+...
+"""
+
+            response = client.models.generate_content(
+                model="models/gemini-3.5-flash-lite",
+                contents=prompt
+            )
+
+            text = response.text
+
+            score = 5
+
+            for line in text.split("\n"):
+
+                if line.lower().startswith("score"):
+
+                    digits = "".join(c for c in line if c.isdigit())
+
+                    if digits:
+
+                        score = min(int(digits), 10)
+
+                    break
+
+            return {
+
+                "score": score,
+
+                "technical_keywords": 0,
+
+                "feedback": [
+
+                    "AI Evaluation",
+
+                    text
+
+                ]
+
+            }
+
+        except Exception as e:
+
+            print("Gemini Error:", e)
+
+    return keyword_evaluation(question, answer)
+
+
+# ---------------- Backup Evaluation ---------------- #
+
+def keyword_evaluation(question: str, answer: str):
+
     score = 0
+
     feedback = []
 
-    question = question.lower()
     answer = answer.lower()
 
-    # ---------------- Keyword Bank ---------------- #
+    keywords = [
 
-    keyword_bank = {
+        "python",
 
-        "python": [
-            "python", "interpreter", "object", "function",
-            "class", "list", "dictionary", "tuple"
-        ],
+        "sql",
 
-        "sql": [
-            "sql", "table", "database", "join",
-            "select", "where", "group by", "primary key"
-        ],
+        "database",
 
-        "git": [
-            "git", "repository", "commit", "branch",
-            "push", "pull", "merge", "clone"
-        ],
+        "class",
 
-        "fastapi": [
-            "fastapi", "api", "router", "endpoint",
-            "request", "response", "uvicorn"
-        ],
+        "object",
 
-        "machine learning": [
-            "model", "training", "dataset",
-            "prediction", "algorithm",
-            "classification", "regression"
-        ],
+        "function",
 
-        "pandas": [
-            "dataframe", "series", "dropna",
-            "loc", "iloc", "csv"
-        ],
+        "api",
 
-        "numpy": [
-            "array", "vectorization",
-            "broadcasting", "ndarray"
-        ]
-    }
+        "fastapi",
 
-    # ---------------- Find Question Topic ---------------- #
+        "machine learning",
 
-    selected_keywords = []
+        "model",
 
-    for topic in keyword_bank:
+        "algorithm",
 
-        if topic in question:
+        "numpy",
 
-            selected_keywords = keyword_bank[topic]
+        "pandas",
 
-            break
+        "git",
 
-    # ---------------- Length ---------------- #
+        "github"
 
-    if len(answer) >= 250:
+    ]
+
+    found = 0
+
+    for word in keywords:
+
+        if word in answer:
+
+            found += 1
+
+    if len(answer.split()) >= 40:
 
         score += 2
 
@@ -69,21 +151,9 @@ def evaluate_answer(question: str, answer: str):
 
         feedback.append("Answer is too short.")
 
-    # ---------------- Keyword Matching ---------------- #
-
-    found = 0
-
-    for keyword in selected_keywords:
-
-        if keyword in answer:
-
-            found += 1
-
     score += min(found, 5)
 
-    # ---------------- Explanation ---------------- #
-
-    if len(answer.split(".")) >= 3:
+    if len(answer.split()) >= 60:
 
         score += 2
 
@@ -91,9 +161,17 @@ def evaluate_answer(question: str, answer: str):
 
         feedback.append("Explain in more detail.")
 
-    # ---------------- Example ---------------- #
+    if any(x in answer for x in [
 
-    if "example" in answer or "for example" in answer:
+        "example",
+
+        "for example",
+
+        "for instance",
+
+        "such as"
+
+    ]):
 
         score += 1
 
@@ -101,15 +179,13 @@ def evaluate_answer(question: str, answer: str):
 
         feedback.append("Try giving an example.")
 
-    # ---------------- Feedback ---------------- #
+    if found:
 
-    if found == 0:
-
-        feedback.append("Use more technical keywords.")
+        feedback.append(f"Found {found} technical keywords.")
 
     else:
 
-        feedback.append(f"Found {found} relevant keywords.")
+        feedback.append("Use more technical keywords.")
 
     if score >= 9:
 
