@@ -27,9 +27,11 @@ function Performance() {
 
     try {
 
+      const username = localStorage.getItem("username");
+
       const response = await fetch(
-        "http://127.0.0.1:8000/performance/Shubham"
-      );
+    `http://127.0.0.1:8000/performance/${username}`
+    );
 
       const result = await response.json();
 
