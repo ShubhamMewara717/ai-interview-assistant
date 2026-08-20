@@ -1,120 +1,73 @@
+import os
 import random
+from google import genai
+
+# ---------------- Gemini ---------------- #
+
+API_KEY = os.getenv("GEMINI_API_KEY")
+
+client = None
+
+if API_KEY:
+    client = genai.Client(api_key=API_KEY)
+
+# ---------------- Question Bank (Fallback) ---------------- #
 
 QUESTION_BANK = {
 
     "python": [
-
         "What are Python decorators?",
         "Explain generators in Python.",
         "Difference between list and tuple.",
         "Difference between list and set.",
-        "What is a dictionary in Python?",
-        "Explain lambda functions.",
-        "What are *args and **kwargs?",
-        "Difference between deep copy and shallow copy.",
         "Explain exception handling.",
-        "What is the use of try-except?",
-        "Difference between append() and extend().",
         "Explain list comprehension.",
-        "What are modules and packages?",
-        "What is __name__ == '__main__'?",
-        "Explain Python OOP concepts.",
         "Difference between class and object.",
-        "What are inheritance and polymorphism?",
-        "Explain encapsulation.",
+        "Explain inheritance in Python.",
         "What is multithreading?",
-        "Difference between process and thread.",
-        "Explain file handling in Python.",
-        "What is virtual environment?",
-        "What is pip?",
-        "Difference between NumPy array and Python list.",
-        "What are f-strings?"
+        "Difference between process and thread."
     ],
 
     "sql": [
-
         "Difference between INNER JOIN and LEFT JOIN.",
-        "Explain RIGHT JOIN.",
-        "What is FULL OUTER JOIN?",
         "What is normalization?",
-        "Explain denormalization.",
-        "What is a primary key?",
-        "What is a foreign key?",
         "Difference between DELETE, DROP and TRUNCATE.",
         "Explain GROUP BY.",
         "Difference between WHERE and HAVING.",
-        "What is ORDER BY?",
-        "What are aggregate functions?",
-        "Explain COUNT(), SUM() and AVG().",
         "What are indexes?",
-        "Difference between clustered and non-clustered index.",
-        "What are views?",
-        "What are stored procedures?",
         "Explain ACID properties.",
-        "What is a transaction?",
-        "Difference between UNION and UNION ALL."
+        "What is a transaction?"
     ],
 
     "machine learning": [
-
         "What is Machine Learning?",
         "Difference between supervised and unsupervised learning.",
         "Explain classification.",
         "Explain regression.",
         "What is overfitting?",
-        "What is underfitting?",
         "How do you prevent overfitting?",
         "Explain train-test split.",
-        "What is cross validation?",
-        "Difference between bias and variance.",
-        "What is feature engineering?",
-        "What is feature scaling?",
-        "Difference between normalization and standardization.",
-        "Explain confusion matrix.",
-        "What is precision?",
-        "What is recall?",
-        "Explain F1-score.",
-        "What is ROC-AUC?",
-        "Difference between bagging and boosting.",
         "Explain Random Forest."
     ],
 
     "deep learning": [
-
         "What is Deep Learning?",
-        "What is an Artificial Neural Network?",
-        "Explain activation functions.",
-        "What is ReLU?",
+        "What is ANN?",
+        "Explain ReLU.",
         "Difference between CNN and RNN.",
-        "What is backpropagation?",
-        "Explain gradient descent.",
-        "What is dropout?",
-        "What are epochs?",
-        "What is batch size?"
+        "Explain backpropagation."
     ],
 
     "fastapi": [
-
         "What is FastAPI?",
         "Explain APIRouter.",
         "Difference between GET and POST.",
-        "Difference between PUT and PATCH.",
-        "What is dependency injection?",
         "What is Pydantic?",
-        "Explain request validation.",
-        "What is CORS?",
-        "Explain middleware.",
-        "How do you connect FastAPI with SQLAlchemy?"
+        "Explain CORS."
     ],
 
     "pandas": [
-
-        "What is Pandas?",
         "Difference between Series and DataFrame.",
-        "Explain loc and iloc.",
-        "How do you handle missing values?",
-        "What is dropna()?",
-        "What is fillna()?",
         "Explain merge().",
         "Difference between merge and concat.",
         "Explain groupby().",
@@ -122,101 +75,141 @@ QUESTION_BANK = {
     ],
 
     "numpy": [
-
         "What is NumPy?",
-        "Difference between list and ndarray.",
         "Explain broadcasting.",
         "What is vectorization?",
         "Explain reshape().",
-        "Difference between zeros() and ones().",
-        "What is numpy array slicing?",
-        "Explain random module.",
-        "What is axis in NumPy?",
-        "Explain mean() and std()."
-    ],
-
-    "java": [
-
-        "What is JVM?",
-        "Difference between JDK and JRE.",
-        "Explain OOP concepts in Java.",
-        "Difference between interface and abstract class.",
-        "What is method overloading?",
-        "What is method overriding?",
-        "Explain exception handling.",
-        "What is multithreading?",
-        "What is Collection Framework?",
-        "Difference between ArrayList and LinkedList."
-    ],
-
-    "react": [
-
-        "What is React?",
-        "What is JSX?",
-        "Difference between state and props.",
-        "Explain useState().",
-        "Explain useEffect().",
-        "What is Virtual DOM?",
-        "What are components?",
-        "Difference between functional and class components.",
-        "Explain React Router.",
-        "How do you pass data between components?"
+        "Difference between ndarray and list."
     ],
 
     "git": [
-
         "What is Git?",
-        "Difference between Git and GitHub.",
-        "Explain git clone.",
         "Explain git pull.",
         "Explain git push.",
-        "Explain git commit.",
-        "What is branching?",
         "What is merge?",
-        "What is rebase?",
         "How do you resolve merge conflicts?"
     ],
 
     "github": [
-
         "What is GitHub?",
-        "Difference between public and private repository.",
-        "Explain pull request.",
-        "Explain fork.",
+        "Explain Pull Request.",
+        "Explain Fork.",
         "What is GitHub Actions?"
     ]
 }
 
 
-def generate_questions(skills):
+# ---------------- Gemini Questions ---------------- #
 
-    selected_questions = []
-    valid_skills = []
+def generate_ai_questions(skills):
+
+    if not client:
+        return None
+
+    try:
+
+        skill_text = ", ".join(skills)
+
+        prompt = f"""
+You are an expert technical interviewer.
+
+Generate exactly 5 interview questions.
+
+Candidate Skills:
+{skill_text}
+
+Rules:
+- Questions should match the candidate's skills.
+- Mix easy, medium and hard.
+- One question per line.
+- Do NOT number them.
+- Do NOT add headings.
+"""
+
+        response = client.models.generate_content(
+            model="models/gemini-2.5-flash",
+            contents=prompt
+        )
+
+        text = response.text.strip()
+
+        questions = []
+
+        for line in text.split("\n"):
+
+            line = line.strip()
+
+            if not line:
+                continue
+
+            if line[0].isdigit():
+                line = line.split(".", 1)[-1].strip()
+
+            questions.append(line)
+
+        questions = list(dict.fromkeys(questions))
+
+        if len(questions) >= 5:
+            return questions[:5]
+
+    except Exception as e:
+
+        print("Gemini Question Error:", e)
+
+    return None
+
+
+# ---------------- Fallback ---------------- #
+
+def generate_fallback_questions(skills):
+
+    selected = []
+
+    valid = []
 
     for skill in skills:
+
         skill = skill.lower()
 
         if skill in QUESTION_BANK:
-            valid_skills.append(skill)
+            valid.append(skill)
 
-    random.shuffle(valid_skills)
+    random.shuffle(valid)
 
-    valid_skills = valid_skills[:5]
+    valid = valid[:5]
 
-    for skill in valid_skills:
-        selected_questions.append(
+    for skill in valid:
+
+        selected.append(
             random.choice(QUESTION_BANK[skill])
         )
 
-    while len(selected_questions) < 5:
+    while len(selected) < 5:
 
-        random_skill = random.choice(list(QUESTION_BANK.keys()))
+        skill = random.choice(list(QUESTION_BANK.keys()))
 
-        question = random.choice(QUESTION_BANK[random_skill])
+        question = random.choice(QUESTION_BANK[skill])
 
-        if question not in selected_questions:
-            selected_questions.append(question)
+        if question not in selected:
+            selected.append(question)
 
-    random.shuffle(selected_questions)
+    random.shuffle(selected)
 
-    return selected_questions
+    return selected
+
+
+# ---------------- Main Function ---------------- #
+
+def generate_questions(skills):
+
+    ai_questions = generate_ai_questions(skills)
+
+    if ai_questions:
+
+        print("Using Gemini Questions")
+
+        return ai_questions
+
+    print("Using Local Question Bank")
+
+    return generate_fallback_questions(skills)
