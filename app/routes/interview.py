@@ -32,10 +32,14 @@ class AnswerRequest(BaseModel):
     answer: str
 
 
+class QuestionRequest(BaseModel):
+    difficulty: str = "medium"
+
+
 # ---------------- Generate Questions ---------------- #
 
-@router.get("/generate-questions")
-def interview_questions():
+@router.post("/generate-questions")
+def interview_questions(data: QuestionRequest):
 
     files = os.listdir("uploads")
 
@@ -50,10 +54,14 @@ def interview_questions():
 
     skills = extract_skills(text)
 
-    questions = generate_questions(skills)
+    questions = generate_questions(
+        skills,
+        data.difficulty
+    )
 
     return {
         "skills": skills,
+        "difficulty": data.difficulty,
         "questions": questions
     }
 
@@ -99,7 +107,9 @@ def save_result(
 @router.get("/history/{username}")
 def history(username: str, db: Session = Depends(get_db)):
 
-    history = db.query(InterviewHistory).filter(
+    history = db.query(
+        InterviewHistory
+    ).filter(
         InterviewHistory.username == username
     ).all()
 
@@ -111,11 +121,14 @@ def history(username: str, db: Session = Depends(get_db)):
 @router.get("/performance/{username}")
 def performance(username: str, db: Session = Depends(get_db)):
 
-    interviews = db.query(InterviewHistory).filter(
+    interviews = db.query(
+        InterviewHistory
+    ).filter(
         InterviewHistory.username == username
     ).all()
 
     if not interviews:
+
         return {
             "total_interviews": 0,
             "best_score": 0,
@@ -132,30 +145,39 @@ def performance(username: str, db: Session = Depends(get_db)):
     )
 
     average_score = round(
-        sum(interview.total_score for interview in interviews)
-        / total_interviews,
+        sum(
+            interview.total_score
+            for interview in interviews
+        ) / total_interviews,
         2
     )
 
     average_percentage = round(
-        sum(interview.percentage for interview in interviews)
-        / total_interviews,
+        sum(
+            interview.percentage
+            for interview in interviews
+        ) / total_interviews,
         2
     )
 
     scores = []
 
     for interview in interviews:
+
         scores.append({
+
             "id": interview.id,
             "score": interview.total_score,
             "percentage": interview.percentage
+
         })
 
     return {
+
         "total_interviews": total_interviews,
         "best_score": best_score,
         "average_score": average_score,
         "average_percentage": average_percentage,
         "scores": scores
+
     }

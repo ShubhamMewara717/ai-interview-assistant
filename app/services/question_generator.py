@@ -11,7 +11,8 @@ client = None
 if API_KEY:
     client = genai.Client(api_key=API_KEY)
 
-# ---------------- Question Bank (Fallback) ---------------- #
+
+# ---------------- Local Question Bank ---------------- #
 
 QUESTION_BANK = {
 
@@ -52,10 +53,10 @@ QUESTION_BANK = {
 
     "deep learning": [
         "What is Deep Learning?",
-        "What is ANN?",
+        "What is an Artificial Neural Network?",
         "Explain ReLU.",
         "Difference between CNN and RNN.",
-        "Explain backpropagation."
+        "Explain Backpropagation."
     ],
 
     "fastapi": [
@@ -69,7 +70,7 @@ QUESTION_BANK = {
     "pandas": [
         "Difference between Series and DataFrame.",
         "Explain merge().",
-        "Difference between merge and concat.",
+        "Difference between merge() and concat().",
         "Explain groupby().",
         "What is apply()?"
     ],
@@ -99,7 +100,7 @@ QUESTION_BANK = {
 }
 
 
-# ---------------- Gemini Questions ---------------- #
+# ---------------- Gemini AI ---------------- #
 
 def generate_ai_questions(skills):
 
@@ -111,23 +112,27 @@ def generate_ai_questions(skills):
         skill_text = ", ".join(skills)
 
         prompt = f"""
-You are an expert technical interviewer.
+You are a Senior Software Engineer and Technical Interviewer.
 
-Generate exactly 5 interview questions.
+Generate exactly FIVE interview questions based on the candidate's skills.
 
 Candidate Skills:
 {skill_text}
 
 Rules:
-- Questions should match the candidate's skills.
-- Mix easy, medium and hard.
+
+- Questions must match the candidate skills.
+- Mix Easy, Medium and Hard questions.
+- Include at least one scenario-based or practical question.
+- Don't repeat any question.
+- Don't write numbering.
+- Don't write headings.
+- Return ONLY the questions.
 - One question per line.
-- Do NOT number them.
-- Do NOT add headings.
 """
 
         response = client.models.generate_content(
-            model="models/gemini-2.5-flash",
+            model="gemini-2.5-flash",
             contents=prompt
         )
 
@@ -147,6 +152,7 @@ Rules:
 
             questions.append(line)
 
+        # Remove duplicate questions
         questions = list(dict.fromkeys(questions))
 
         if len(questions) >= 5:
@@ -159,26 +165,26 @@ Rules:
     return None
 
 
-# ---------------- Fallback ---------------- #
+# ---------------- Local Fallback ---------------- #
 
 def generate_fallback_questions(skills):
 
     selected = []
 
-    valid = []
+    valid_skills = []
 
     for skill in skills:
 
         skill = skill.lower()
 
         if skill in QUESTION_BANK:
-            valid.append(skill)
+            valid_skills.append(skill)
 
-    random.shuffle(valid)
+    random.shuffle(valid_skills)
 
-    valid = valid[:5]
+    valid_skills = valid_skills[:5]
 
-    for skill in valid:
+    for skill in valid_skills:
 
         selected.append(
             random.choice(QUESTION_BANK[skill])
@@ -186,9 +192,11 @@ def generate_fallback_questions(skills):
 
     while len(selected) < 5:
 
-        skill = random.choice(list(QUESTION_BANK.keys()))
+        random_skill = random.choice(list(QUESTION_BANK.keys()))
 
-        question = random.choice(QUESTION_BANK[skill])
+        question = random.choice(
+            QUESTION_BANK[random_skill]
+        )
 
         if question not in selected:
             selected.append(question)
@@ -206,10 +214,15 @@ def generate_questions(skills):
 
     if ai_questions:
 
-        print("Using Gemini Questions")
+        print("=" * 50)
+        print("✅ Using Gemini AI Questions")
+        print("=" * 50)
 
         return ai_questions
 
-    print("Using Local Question Bank")
+    print("=" * 50)
+    print("⚠ Gemini Failed")
+    print("📚 Using Local Question Bank")
+    print("=" * 50)
 
     return generate_fallback_questions(skills)
