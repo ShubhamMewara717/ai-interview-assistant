@@ -11,6 +11,8 @@ from app.services.pdf_reader import read_pdf
 from app.services.skill_extractor import extract_skills
 from app.services.question_generator import generate_questions
 from app.services.answer_evaluator import evaluate_answer
+from app.services.resume_analyzer import analyze_resume
+
 
 router = APIRouter()
 
@@ -19,8 +21,10 @@ router = APIRouter()
 
 def get_db():
     db = SessionLocal()
+
     try:
         yield db
+
     finally:
         db.close()
 
@@ -28,11 +32,13 @@ def get_db():
 # ---------------- Request Models ---------------- #
 
 class AnswerRequest(BaseModel):
+
     question: str
     answer: str
 
 
 class QuestionRequest(BaseModel):
+
     difficulty: str = "medium"
 
 
@@ -44,11 +50,15 @@ def interview_questions(data: QuestionRequest):
     files = os.listdir("uploads")
 
     if not files:
+
         return {
             "error": "Please upload a resume first."
         }
 
-    pdf_path = os.path.join("uploads", files[0])
+    pdf_path = os.path.join(
+        "uploads",
+        files[0]
+    )
 
     text = read_pdf(pdf_path)
 
@@ -60,9 +70,80 @@ def interview_questions(data: QuestionRequest):
     )
 
     return {
+
         "skills": skills,
+
         "difficulty": data.difficulty,
+
         "questions": questions
+
+    }
+
+
+# ---------------- Analyze Resume ---------------- #
+
+@router.get("/analyze-resume")
+def resume_analysis():
+
+    files = os.listdir("uploads")
+
+    if not files:
+
+        return {
+            "error": "Please upload a resume first."
+        }
+
+    pdf_path = os.path.join(
+        "uploads",
+        files[0]
+    )
+
+    # Read resume
+    text = read_pdf(pdf_path)
+
+    # Extract skills
+    skills = extract_skills(text)
+
+    # Analyze resume using Gemini
+    analysis = analyze_resume(
+        text,
+        skills
+    )
+
+    return {
+
+        "skills": skills,
+
+        "ats_score": analysis.get(
+            "ats_score",
+            0
+        ),
+
+        "summary": analysis.get(
+            "summary",
+            ""
+        ),
+
+        "strengths": analysis.get(
+            "strengths",
+            []
+        ),
+
+        "weaknesses": analysis.get(
+            "weaknesses",
+            []
+        ),
+
+        "missing_skills": analysis.get(
+            "missing_skills",
+            []
+        ),
+
+        "suggestions": analysis.get(
+            "suggestions",
+            []
+        )
+
     }
 
 
@@ -86,26 +167,40 @@ def save_result(
 ):
 
     interview = InterviewHistory(
+
         username=data.username,
+
         total_score=data.total_score,
+
         total_questions=data.total_questions,
+
         percentage=data.percentage,
+
         performance=data.performance
+
     )
 
     db.add(interview)
+
     db.commit()
+
     db.refresh(interview)
 
     return {
-        "message": "Interview result saved successfully."
+
+        "message":
+        "Interview result saved successfully."
+
     }
 
 
 # ---------------- Interview History ---------------- #
 
 @router.get("/history/{username}")
-def history(username: str, db: Session = Depends(get_db)):
+def history(
+    username: str,
+    db: Session = Depends(get_db)
+):
 
     history = db.query(
         InterviewHistory
@@ -119,7 +214,10 @@ def history(username: str, db: Session = Depends(get_db)):
 # ---------------- Performance Dashboard ---------------- #
 
 @router.get("/performance/{username}")
-def performance(username: str, db: Session = Depends(get_db)):
+def performance(
+    username: str,
+    db: Session = Depends(get_db)
+):
 
     interviews = db.query(
         InterviewHistory
@@ -130,36 +228,61 @@ def performance(username: str, db: Session = Depends(get_db)):
     if not interviews:
 
         return {
+
             "total_interviews": 0,
+
             "best_score": 0,
+
             "average_score": 0,
+
             "average_percentage": 0,
+
             "scores": []
+
         }
 
     total_interviews = len(interviews)
 
+
+    # Best score
     best_score = max(
+
         interview.total_score
+
         for interview in interviews
+
     )
 
+
+    # Average score
     average_score = round(
+
         sum(
             interview.total_score
             for interview in interviews
-        ) / total_interviews,
+        )
+        / total_interviews,
+
         2
+
     )
 
+
+    # Average percentage
     average_percentage = round(
+
         sum(
             interview.percentage
             for interview in interviews
-        ) / total_interviews,
+        )
+        / total_interviews,
+
         2
+
     )
 
+
+    # Score history
     scores = []
 
     for interview in interviews:
@@ -167,17 +290,29 @@ def performance(username: str, db: Session = Depends(get_db)):
         scores.append({
 
             "id": interview.id,
+
             "score": interview.total_score,
+
             "percentage": interview.percentage
 
         })
 
+
     return {
 
-        "total_interviews": total_interviews,
-        "best_score": best_score,
-        "average_score": average_score,
-        "average_percentage": average_percentage,
-        "scores": scores
+        "total_interviews":
+        total_interviews,
+
+        "best_score":
+        best_score,
+
+        "average_score":
+        average_score,
+
+        "average_percentage":
+        average_percentage,
+
+        "scores":
+        scores
 
     }
